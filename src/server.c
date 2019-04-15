@@ -60,14 +60,15 @@ int send_response(int fd, char *header, char *content_type, void *body, int cont
 
     int response_length = sprintf(response,
         "%s\n"
-        "Date: %s\n"
+        "Date: %s"
         "Content-Type: %s\n"
-        "%d\n"
+        "Content-Length: %d\n"
         "Connection: close\n"
         "\n"
         "%s",
         header, ctime(&rawtime), content_type, content_length, body
     );
+    printf("%s\n", response);
 
     // Send it all!
     int rv = send(fd, response, response_length, 0);
@@ -224,6 +225,7 @@ int main(void)
         // newfd is a new socket descriptor for the new connection.
         // listenfd is still listening for new connections.
 
+        // resp_404(newfd);
         handle_http_request(newfd, cache);
 
         close(newfd);
