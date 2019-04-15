@@ -220,7 +220,7 @@ int main(void)
         inet_ntop(their_addr.ss_family,
             get_in_addr((struct sockaddr *)&their_addr),
             s, sizeof s);
-        printf("server: got connection from %s\n", s);
+        // printf("server: got connection from %s\n", s);
         
         // newfd is a new socket descriptor for the new connection.
         // listenfd is still listening for new connections.
