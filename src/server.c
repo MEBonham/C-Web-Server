@@ -153,7 +153,7 @@ char *find_start_of_body(char *header)
  */
 void handle_http_request(int fd, struct cache *cache)
 {
-    const int request_buffer_size = 65536; // 64K
+    const int request_buffer_size = 262144; // 64K
     char request[request_buffer_size];
 
     // Read request
@@ -164,18 +164,28 @@ void handle_http_request(int fd, struct cache *cache)
         return;
     }
 
-
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
-
     // Read the first two components of the first line of the request 
+    char request_type[10], path[2048];
+    sscanf(request, "%s %s", request_type, path);
  
     // If GET, handle the get endpoints
 
     //    Check if it's /d20 and handle that special case
     //    Otherwise serve the requested file by calling get_file()
-
+    if (!strcmp(request_type, "GET"))
+    {
+        if (!strcmp(path, "/d20"))
+        {
+            get_d20(fd);
+            return;
+        }
+        else
+        {
+            get_file(fd, cache, path);
+            return;
+        }
+        
+    }
 
     // (Stretch) If POST, handle the post request
 }
