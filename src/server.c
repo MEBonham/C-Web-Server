@@ -87,16 +87,12 @@ int send_response(int fd, char *header, char *content_type, void *body, int cont
 void get_d20(int fd)
 {
     // Generate a random number between 1 and 20 inclusive
-    
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+    int num = rand() % 20 + 1;
+    char str[12];
+    sprintf(str, "<h1>%d</h1>", num);
 
     // Use send_response() to send it back as text/plain data
-
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+    send_response(fd, "HTTP/1.1 200 OK", "text/html", str, strlen(str));
 }
 
 /**
@@ -195,6 +191,8 @@ void handle_http_request(int fd, struct cache *cache)
  */
 int main(void)
 {
+    srand(time(0));
+
     int newfd;  // listen on sock_fd, new connection on newfd
     struct sockaddr_storage their_addr; // connector's address information
     char s[INET6_ADDRSTRLEN];
