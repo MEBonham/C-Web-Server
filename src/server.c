@@ -58,20 +58,24 @@ int send_response(int fd, char *header, char *content_type, void *body, int cont
 
     time( &rawtime );
 
-    int response_length = sprintf(response,
+    int header_length = sprintf(response,
         "%s\n"
         "Date: %s"
         "Content-Type: %s\n"
         "Content-Length: %d\n"
         "Connection: close\n"
-        "\n"
-        "%s",
-        header, ctime(&rawtime), content_type, content_length, body
+        "\n",
+        header, ctime(&rawtime), content_type, content_length
     );
+    if (header_length + content_length > max_response_size)
+    {
+        content_length = max_response_size - header_length;
+    }
+    memcpy(response + header_length, body, content_length);
     printf("%s\n", response);
 
     // Send it all!
-    int rv = send(fd, response, response_length, 0);
+    int rv = send(fd, response, header_length + content_length, 0);
 
     if (rv < 0) {
         perror("send");
@@ -101,7 +105,7 @@ void get_d20(int fd)
 void resp_404(int fd)
 {
     char filepath[4096];
-    struct file_data *filedata; 
+    struct file_data *filedata;
     char *mime_type;
 
     // Fetch the 404.html file
@@ -126,9 +130,33 @@ void resp_404(int fd)
  */
 void get_file(int fd, struct cache *cache, char *request_path)
 {
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+    char filepath[2048];
+    struct file_data *filedata;
+    char *mime_type;
+
+    if (!strcmp(request_path, "/"))
+    {
+        snprintf(filepath, sizeof(filepath), "%s/index.html", SERVER_ROOT);
+    }
+    else
+    {
+        snprintf(filepath, sizeof(filepath), "%s%s", SERVER_ROOT, request_path);
+    }
+    // TODO: Cache check here
+
+    filedata = file_load(filepath);
+
+    if (filedata == NULL) {
+        // TODO: make this non-fatal
+        fprintf(stderr, "cannot find requested file %s\n", filepath);
+        resp_404(fd);
+    }
+
+    mime_type = mime_type_get(filepath);
+
+    send_response(fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size);
+
+    file_free(filedata);    
 }
 
 /**
