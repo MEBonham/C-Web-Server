@@ -9,9 +9,14 @@
  */
 struct cache_entry *alloc_entry(char *path, char *content_type, void *content, int content_length)
 {
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+    struct cache_entry *ce = malloc(sizeof(struct cache_entry));
+    ce->path = strdup(path);
+    ce->content_type = strdup(content_type);
+    ce->content_length = content_length;
+    ce->content = malloc(content_length);
+    memcpy(ce->content, content, content_length);
+
+    return ce;
 }
 
 /**
@@ -19,9 +24,10 @@ struct cache_entry *alloc_entry(char *path, char *content_type, void *content, i
  */
 void free_entry(struct cache_entry *entry)
 {
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+    free(entry->path);
+    free(entry->content_type);
+    free(entry->content);
+    free(entry);    
 }
 
 /**
@@ -91,9 +97,12 @@ struct cache_entry *dllist_remove_tail(struct cache *cache)
  */
 struct cache *cache_create(int max_size, int hashsize)
 {
-    ///////////////////
-    // IMPLEMENT ME! //
-    ///////////////////
+    struct cache *c = malloc(sizeof(struct cache));
+    c->index = hashtable_create(hashsize, NULL);
+    c->head = NULL;
+    c->tail = NULL;
+    c->max_size = max_size;
+    c->cur_size = 0;
 }
 
 void cache_free(struct cache *cache)
@@ -129,13 +138,13 @@ void cache_put(struct cache *cache, char *path, char *content_type, void *conten
     hashtable_put(cache->index, path, new_entry);
 
     cache->cur_size += 1;
-    while (cache->cur_size > cache->max_size)
+
+    if (cache->cur_size > cache->max_size)
     {
         struct cache_entry *tail_entry = cache->tail;
         dllist_remove_tail(cache);
         hashtable_delete(cache->index, tail_entry->path);
         free_entry(tail_entry);
-        cache->cur_size -= 1;
     }
 }
 

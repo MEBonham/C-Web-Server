@@ -11,7 +11,7 @@ char *test_cache_create()
   int hash_size = 0;
 
   struct cache *cache = cache_create(max_size, hash_size);
-
+  
   // Check that each field of the cache struct was initialized to the proper value
   mu_assert(cache, "Your cache_create function did not return a valid pointer to the created cache");
   mu_assert(cache->head == NULL, "The head pointer of the cache should be initialized to NULL");
@@ -19,7 +19,7 @@ char *test_cache_create()
   mu_assert(cache->cur_size == 0, "The cur_size field of the cache should be initialized to 0");
   mu_assert(cache->max_size == max_size, "The max_size field of the cache was not initialized to the expected value");
   mu_assert(cache->index != NULL, "The index field of the cache was not initialized");
-
+  
   cache_free(cache);
 
   return NULL;
@@ -39,7 +39,7 @@ char *test_cache_alloc_entry()
   mu_assert(check_strings(ce->content_type, content_type) == 0, "Your alloc_entry function did not allocate the content_type field to the expected string");
   mu_assert(check_strings(ce->content, content) == 0, "Your alloc_entry function did not allocate the content field to the expected string");
   mu_assert(ce->content_length == content_len, "Your alloc_entry function did not allocate the content_length field to the expected length");
-
+  
   free_entry(ce);
 
   return NULL;
@@ -149,7 +149,6 @@ char *test_cache_get()
 char *all_tests()
 {
   mu_suite_start();
-
   mu_run_test(test_cache_create);
   mu_run_test(test_cache_alloc_entry);
   mu_run_test(test_cache_put);
